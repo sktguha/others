@@ -12,7 +12,7 @@ function formatAMPM(date) {
   return strTime;
 }
 setInterval(()=>{
-  document.title = formatAMPM(new Date());
+  document.title = formatAMPM(new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
 },1000)
 </script>
 </body>
