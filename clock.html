@@ -1,6 +1,7 @@
 <head></head>
 <body>
 <script>
+  console.log("set localStorage flag 'seconds' to true to show seconds also and 'timezone' flag to customize timezone");
 function formatAMPM(date) {
   var hours = date.getHours();
   var minutes = date.getMinutes();
@@ -8,11 +9,14 @@ function formatAMPM(date) {
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
   minutes = minutes < 10 ? '0'+minutes : minutes;
-  var strTime = hours + ':' + minutes + ' ' + ampm;
+  var strTime = hours + ':' + minutes + (localStorage['seconds']==="true"?(':'+date.getSeconds()):'')+' ' + ampm;
+  if(localStorage['seconds']==="true"){
+     strTime 
+  }
   return strTime;
 }
 setInterval(()=>{
-  document.title = formatAMPM(new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
+  document.title = formatAMPM(new Date(new Date().toLocaleString("en-US", {timeZone: localStorage['timezone'] || "Asia/Kolkata"})));
 },1000)
 </script>
 </body>
