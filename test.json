@@ -1,17 +1,17 @@
 [
     {
       "name": "name1",
-      "status": "Up",
+      "status": "status1",
       "time": "time1"
     },
     {
       "name": "name2",
-      "status": "Up",
+      "status": "status2",
       "time": "time2"
     },
     {
       "name": "name3",
-      "status": "Down",
+      "status": "status3",
       "time": "time3"
     }
   ]
