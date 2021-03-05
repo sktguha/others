@@ -1,0 +1,17 @@
+[
+    {
+      "name": "name1",
+      "status": "Up",
+      "time": "time1"
+    },
+    {
+      "name": "name2",
+      "status": "Up",
+      "time": "time2"
+    },
+    {
+      "name": "name3",
+      "status": "Down",
+      "time": "time3"
+    }
+  ]
