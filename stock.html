@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Calculation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Price Calculation</h1>
+    <div id="result" class="result">
+        Fetching data...
+    </div>
+
+    <script>
+        fetch("https://api.twelvedata.com/time_series?apikey=ee170188a3f94101a70d0e4e44fe2e25&interval=1min&symbol=CFLT")
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById("result");
+                if (data.values && data.values.length > 0) {
+                    let closeValue = parseFloat(data.values[0].close);
+                    let calculatedValue = ((closeValue * 4000) - 113000) * 80 / 4;
+                    let finalValueInLakhs = calculatedValue / 100000;
+                    let finalValueInCr = (finalValueInLakhs + 100) / 100;
+
+                    resultDiv.innerHTML = `
+                        <p><strong>Close Value:</strong> ${closeValue * 4000}</p>
+                        <p><strong>Final Value:</strong> ${finalValueInCr.toFixed(2)} Cr</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = "<p>No data available</p>";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById("result").innerHTML = "<p>Failed to fetch data</p>";
+            });
+    </script>
+</body>
+</html>
