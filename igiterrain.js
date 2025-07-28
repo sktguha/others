@@ -1,11 +1,9 @@
-
-// https://2478228.playcode.io/
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xaee2ff); // Light blue sky
+scene.background = new THREE.Color(0xaee2ff);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -30,34 +28,53 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
 
-// Island (with texture)
-let island = null;
+// Load textures and create block-pattern terrain
 const loader = new THREE.TextureLoader();
-loader.load(
-  'https://iili.io/FvNKWla.jpg',
-  (texture) => {
-    // const geometry = new THREE.PlaneGeometry(10, 10, 1, 1);
-    // const material = new THREE.MeshStandardMaterial({ map: texture });
-    // island = new THREE.Mesh(geometry, material);
-    // island.rotation.x = -Math.PI / 2;
-    // island.receiveShadow = true;
-    // scene.add(island);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(20, 20); // Repeat 20x20 across the 200x200 plane
+const landURL = 'https://iili.io/FvNKWla.jpg';
+const grassURL = 'https://iili.io/FvNKjHv.jpg';
 
-    const geometry = new THREE.PlaneGeometry(200, 200, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ map: texture });
-    island = new THREE.Mesh(geometry, material);
-    island.rotation.x = -Math.PI / 2;
-    island.receiveShadow = true;
-    scene.add(island);
-  },
-  undefined,
-  (err) => {
-    console.error('Texture failed to load', err);
+const gridSize = 4;
+const tileSize = 50;
+
+Promise.all([
+  loader.loadAsync(landURL),
+  loader.loadAsync(grassURL),
+]).then(([landTex, grassTex]) => {
+  landTex.wrapS = landTex.wrapT = THREE.RepeatWrapping;
+  grassTex.wrapS = grassTex.wrapT = THREE.RepeatWrapping;
+  landTex.repeat.set(1, 1);
+  grassTex.repeat.set(1, 1);
+
+  const landMat = new THREE.MeshStandardMaterial({ map: landTex });
+  const grassMat = new THREE.MeshStandardMaterial({ map: grassTex });
+
+  for (let x = 0; x < gridSize; x++) {
+    for (let z = 0; z < gridSize; z++) {
+      const geometry = new THREE.PlaneGeometry(tileSize, tileSize);
+      const material = decideMaterial(x, z, landMat, grassMat);
+      const tile = new THREE.Mesh(geometry, material);
+      tile.rotation.x = -Math.PI / 2;
+      tile.position.set(
+        x * tileSize - (gridSize * tileSize) / 2 + tileSize / 2,
+        0,
+        z * tileSize - (gridSize * tileSize) / 2 + tileSize / 2
+      );
+      tile.receiveShadow = true;
+      scene.add(tile);
+    }
   }
-);
+});
+
+function decideMaterial(x, z, landMat, grassMat) {
+  const pattern = [
+    ['l', 'g', 'l', 'g'],
+    ['g', 'g', 'l', 'l'],
+    ['l', 'g', 'g', 'l'],
+    ['g', 'l', 'g', 'l'],
+  ];
+  const char = pattern[z % pattern.length][x % pattern[0].length];
+  return char === 'l' ? landMat : grassMat;
+}
 
 // Movement flags
 let moveForward = false;
@@ -138,7 +155,6 @@ window.addEventListener('resize', () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  // Camera movement
   const direction = new THREE.Vector3();
   camera.getWorldDirection(direction);
   direction.y = 0;
